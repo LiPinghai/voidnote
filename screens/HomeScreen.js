@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateSelect from '../components/DateSelect';
+import NoteList from '../components/NoteList'; // Import the NoteList component
+
 export default function HomeScreen({ navigation, route }) {
   const [notes, setNotes] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [selectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   const loadNotes = async (date) => {
     const storedNotes = await AsyncStorage.getItem('diaryNotes');
@@ -16,7 +17,7 @@ export default function HomeScreen({ navigation, route }) {
 
   useEffect(() => {
     loadNotes(selectedDate);
-    navigation.setParams({ selectedDate }); // Update the header title with the selected date
+    navigation.setParams({ selectedDate });
   }, [selectedDate]);
 
   useEffect(() => {
@@ -31,18 +32,12 @@ export default function HomeScreen({ navigation, route }) {
   return (
     <View style={styles.container}>
       <DateSelect navigation={navigation} route={route} />
-      <FlatList
-        data={notes}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('Note', { note: item })}>
-            <Text style={styles.note}>{item.title}</Text>
-          </TouchableOpacity>
-        )}
-      />
-
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('NewNote', { selectedDate })}>
-        <Text style={styles.buttonText}>Add New Note</Text>
+      <NoteList notes={notes} onNotePress={(note) => navigation.navigate('Note', { note })} />
+      <TouchableOpacity 
+        style={styles.addButton} 
+        onPress={() => navigation.navigate('NewNote', { selectedDate })}
+      >
+        <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
   );
@@ -50,25 +45,25 @@ export default function HomeScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+  addButton: {
+    backgroundColor: '#FFFFFF',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 30,
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
-  calendarContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 10,
-    width: '90%',
+  addButtonText: {
+    color: '#ccc',
+    fontSize: 28,
+    lineHeight: 28,
   },
-  note: { fontSize: 18, marginVertical: 10 },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: { color: '#fff', fontSize: 16 },
 });
