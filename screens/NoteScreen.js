@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
-export default function EntryScreen({ route }) {
-  const { entry } = route.params;
+export default function NoteScreen({ route }) {
+  const { note } = route.params;
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>{entry.title}</Text>
-      <Text style={styles.content}>{entry.content}</Text>
+      <Text style={styles.title}>{note.title}</Text>
+      <Text style={styles.content}>{note.content}</Text>
     </ScrollView>
   );
 }

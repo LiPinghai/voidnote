@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Calendar } from 'react-native-calendars';
-
+import DateSelect from '../components/DateSelect';
 export default function HomeScreen({ navigation, route }) {
-  const [entries, setEntries] = useState([]);
+  const [notes, setNotes] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [calendarVisible, setCalendarVisible] = useState(false);
 
-  const loadEntries = async (date) => {
-    const storedEntries = await AsyncStorage.getItem('diaryEntries');
-    const allEntries = storedEntries ? JSON.parse(storedEntries) : [];
-    const filteredEntries = allEntries.filter(entry => entry.date === date);
-    setEntries(filteredEntries);
+  const loadNotes = async (date) => {
+    const storedNotes = await AsyncStorage.getItem('diaryNotes');
+    const allNotes = storedNotes ? JSON.parse(storedNotes) : [];
+    const filteredNotes = allNotes.filter(note => note.date === date);
+    setNotes(filteredNotes);
   };
 
   useEffect(() => {
-    loadEntries(selectedDate);
+    loadNotes(selectedDate);
     navigation.setParams({ selectedDate }); // Update the header title with the selected date
   }, [selectedDate]);
 
   useEffect(() => {
     if (route.params?.refresh) {
-      loadEntries(selectedDate);
+      loadNotes(selectedDate);
     }
     if (route.params?.calendarVisible !== undefined) {
       setCalendarVisible(route.params.calendarVisible);
@@ -31,42 +30,19 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Modal
-        visible={calendarVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setCalendarVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setCalendarVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.calendarContainer}>
-                <Calendar
-                  onDayPress={(day) => {
-                    setSelectedDate(day.dateString);
-                    setCalendarVisible(false);
-                    navigation.setParams({ calendarVisible: false });
-                  }}
-                  markedDates={{ [selectedDate]: { selected: true, selectedColor: '#007AFF' } }}
-                />
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-
+      <DateSelect navigation={navigation} route={route} />
       <FlatList
-        data={entries}
+        data={notes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('Entry', { entry: item })}>
-            <Text style={styles.entry}>{item.title}</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Note', { note: item })}>
+            <Text style={styles.note}>{item.title}</Text>
           </TouchableOpacity>
         )}
       />
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('NewEntry', { selectedDate })}>
-        <Text style={styles.buttonText}>Add New Entry</Text>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('NewNote', { selectedDate })}>
+        <Text style={styles.buttonText}>Add New Note</Text>
       </TouchableOpacity>
     </View>
   );
@@ -86,7 +62,7 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '90%',
   },
-  entry: { fontSize: 18, marginVertical: 10 },
+  note: { fontSize: 18, marginVertical: 10 },
   button: {
     backgroundColor: '#007AFF',
     padding: 15,

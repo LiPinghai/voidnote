@@ -3,21 +3,21 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-nativ
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
 
-export default function NewEntryScreen({ navigation, route }) {
+export default function NewNoteScreen({ navigation, route }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const selectedDate = route.params?.selectedDate || new Date().toISOString().split('T')[0];
 
-  const saveEntry = async () => {
+  const saveNote = async () => {
     try {
-      const newEntry = { id: uuid.v4(), title, content, date: selectedDate };
-      const storedEntries = await AsyncStorage.getItem('diaryEntries');
-      const entries = storedEntries ? JSON.parse(storedEntries) : [];
-      entries.push(newEntry);
-      await AsyncStorage.setItem('diaryEntries', JSON.stringify(entries));
+      const newNote = { id: uuid.v4(), title, content, date: selectedDate };
+      const storedNotes = await AsyncStorage.getItem('diaryNotes');
+      const notes = storedNotes ? JSON.parse(storedNotes) : [];
+      notes.push(newNote);
+      await AsyncStorage.setItem('diaryNotes', JSON.stringify(notes));
       navigation.navigate('Home', { refresh: true });
     } catch (error) {
-      console.error("Error saving entry:", error);
+      console.error("Error saving note:", error);
     }
   };
 
@@ -31,13 +31,13 @@ export default function NewEntryScreen({ navigation, route }) {
       />
       <TextInput
         style={[styles.input, styles.contentInput]}
-        placeholder="Write your diary entry here..."
+        placeholder="Write your diary note here..."
         value={content}
         onChangeText={setContent}
         multiline
       />
-      <TouchableOpacity style={styles.button} onPress={saveEntry}>
-        <Text style={styles.buttonText}>Save Entry</Text>
+      <TouchableOpacity style={styles.button} onPress={saveNote}>
+        <Text style={styles.buttonText}>Save Note</Text>
       </TouchableOpacity>
     </View>
   );
