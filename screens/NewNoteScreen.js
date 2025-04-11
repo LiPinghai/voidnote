@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import uuid from 'react-native-uuid';
 import { useAppContext } from '../components/AppContext';
+import uuid from 'react-native-uuid'; 
 
-export default function NewNoteScreen({ navigation, route }) {
+export default function NewNoteScreen({ navigation }) {
   const { selectedDate, addNote } = useAppContext();
 
   const [title, setTitle] = useState('');
@@ -12,8 +11,8 @@ export default function NewNoteScreen({ navigation, route }) {
 
   const saveNote = async () => {
     try {
-      if(!title){
-        return
+      if (!title) {
+        return;
       }
       const newNote = { id: uuid.v4(), title, content, date: selectedDate };
       addNote(newNote);
@@ -23,32 +22,61 @@ export default function NewNoteScreen({ navigation, route }) {
     }
   };
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={saveNote}>
+          <Text style={styles.doneButtonText}>Done</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, saveNote]);
+
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.input}
-        placeholder="Title"
+        style={styles.titleInput}
+        placeholder="What's going on?"
         value={title}
         onChangeText={setTitle}
       />
       <TextInput
-        style={[styles.input, styles.contentInput]}
-        placeholder="Write your diary note here..."
+        style={styles.contentInput}
+        placeholder="Thoughts? Feelings?"
         value={content}
         onChangeText={setContent}
         multiline
       />
-      <TouchableOpacity style={styles.button} onPress={saveNote}>
-        <Text style={styles.buttonText}>Save Note</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  input: { borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 5 },
-  contentInput: { height: 200, textAlignVertical: 'top' },
-  button: { backgroundColor: '#007AFF', padding: 15, borderRadius: 10, alignItems: 'center' },
-  buttonText: { color: '#fff', fontSize: 16 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#fff',
+    padding: 16
+  },
+  titleInput: { 
+    padding: 10, 
+    marginBottom: 15, 
+    fontSize: 18,
+    borderBottomWidth: 1, 
+    borderColor: '#eee',
+    color: '#000',
+  },
+  contentInput: { 
+    flex: 1, 
+    textAlignVertical: 'top',
+    padding: 10,
+    fontSize: 16,
+    borderBottomWidth: 1, 
+    borderColor: '#eee',
+    color: '#000',
+  },
+  doneButtonText: { 
+    color: '#007AFF', 
+    fontSize: 16,
+    paddingRight: 15,
+  },
 });
