@@ -1,15 +1,18 @@
 // components/NoteList.js
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-// import { useSelectedDate } from './SelectedDateContext'; // Import the context
 import { useAppContext } from './AppContext';
+import { Swipeable } from 'react-native-gesture-handler';
 
-function NoteList({ onNotePress }) {
+function NoteList({ onNotePress, onDeleteNote }) {
   const { selectedDate, notes } = useAppContext();
-  // Filter notes to only include those created on the selected date
-  const filteredNotes = notes.filter(note => {
-    return note.date === selectedDate;
-  });
+  const filteredNotes = notes.filter(note => note.date === selectedDate);
+
+  const renderRightActions = (noteId) => (
+    <TouchableOpacity onPress={() => onDeleteNote(noteId)} style={styles.deleteButton}>
+      <Text style={styles.deleteButtonText}>Delete</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -20,12 +23,14 @@ function NoteList({ onNotePress }) {
           data={filteredNotes}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => onNotePress(item)}>
-              <View style={styles.card}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.content}>{item.content}</Text>
-              </View>
-            </TouchableOpacity>
+            <Swipeable renderRightActions={() => renderRightActions(item.id)}>
+              <TouchableOpacity onPress={() => onNotePress(item)}>
+                <View style={styles.card}>
+                  <Text style={styles.title}>{item.title}</Text>
+                  <Text style={styles.content}>{item.content}</Text>
+                </View>
+              </TouchableOpacity>
+            </Swipeable>
           )}
         />
       )}
@@ -59,6 +64,16 @@ const styles = StyleSheet.create({
     color: '#ccc',
     textAlign: 'center',
     marginTop: 100,
+  },
+  deleteButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    height: '100%',
+  },
+  deleteButtonText: {
+    color: 'red',
+    fontWeight: 'bold',
   },
 });
 
