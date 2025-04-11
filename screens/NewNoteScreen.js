@@ -3,19 +3,28 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-nativ
 import { useAppContext } from '../components/AppContext';
 import uuid from 'react-native-uuid'; 
 
-export default function NewNoteScreen({ navigation }) {
-  const { selectedDate, addNote } = useAppContext();
+export default function NewNoteScreen({ navigation, route }) {
+  const { selectedDate, addNote, editNote } = useAppContext();
+  const noteToEdit = route.params?.note;
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState(noteToEdit ? noteToEdit.title : '');
+  const [content, setContent] = useState(noteToEdit ? noteToEdit.content : '');
 
   const saveNote = async () => {
     try {
       if (!title) {
         return;
       }
-      const newNote = { id: uuid.v4(), title, content, date: selectedDate };
-      addNote(newNote);
+      const newNote = noteToEdit
+        ? { ...noteToEdit, title, content }
+        : { id: uuid.v4(), title, content, date: selectedDate };
+      
+      if (noteToEdit) {
+        await editNote(newNote);
+      } else {
+        await addNote(newNote);
+      }
+      
       navigation.navigate('Home', { refresh: true });
     } catch (error) {
       console.error("Error saving note:", error);
