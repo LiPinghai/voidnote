@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
+import { useAppContext } from '../components/AppContext';
 
 export default function NewNoteScreen({ navigation, route }) {
+  const { selectedDate, addNote } = useAppContext();
+
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const selectedDate = route.params?.selectedDate || new Date().toISOString().split('T')[0];
 
   const saveNote = async () => {
     try {
+      if(!title){
+        return
+      }
       const newNote = { id: uuid.v4(), title, content, date: selectedDate };
-      const storedNotes = await AsyncStorage.getItem('diaryNotes');
-      const notes = storedNotes ? JSON.parse(storedNotes) : [];
-      notes.push(newNote);
-      await AsyncStorage.setItem('diaryNotes', JSON.stringify(notes));
+      addNote(newNote);
       navigation.navigate('Home', { refresh: true });
     } catch (error) {
       console.error("Error saving note:", error);

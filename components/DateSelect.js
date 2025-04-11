@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
-import { useSelectedDate } from './SelectedDateContext';
+import { useAppContext } from '../components/AppContext';
 
 function DateSelect() {
-  const { selectedDate, setSelectedDate } = useSelectedDate();
+  const { selectedDate, setSelectedDate } = useAppContext();
+
   const [calendarVisible, setCalendarVisible] = useState(false);
   
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={() => setCalendarVisible(true)}>
-        <Text style={styles.headerText}>{selectedDate.toISOString().split('T')[0]}</Text>
+        <Text style={styles.headerText}>{selectedDate}</Text>
       </TouchableOpacity>
       <Modal
         visible={calendarVisible}
@@ -24,7 +25,7 @@ function DateSelect() {
               <View style={styles.calendarContainer}>
                 <Calendar
                   onDayPress={(day) => {
-                    setSelectedDate(new Date(day.dateString));
+                    setSelectedDate(new Date(day.dateString).toISOString().split('T')[0]);
                     setCalendarVisible(false);
                   }}
                   markedDates={{ [selectedDate]: { selected: true, selectedColor: '#007AFF' } }}

@@ -1,38 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateSelect from '../components/DateSelect';
 import NoteList from '../components/NoteList'; // Import the NoteList component
+import { useAppContext } from '../components/AppContext';
 
-export default function HomeScreen({ navigation, route }) {
-  const [notes, setNotes] = useState([]);
-  const [selectedDate] = useState(new Date().toISOString().split('T')[0]);
-
-  const loadNotes = async (date) => {
-    const storedNotes = await AsyncStorage.getItem('diaryNotes');
-    const allNotes = storedNotes ? JSON.parse(storedNotes) : [];
-    const filteredNotes = allNotes.filter(note => note.date === date);
-    setNotes(filteredNotes);
-  };
-
-  useEffect(() => {
-    loadNotes(selectedDate);
-    navigation.setParams({ selectedDate });
-  }, [selectedDate]);
-
-  useEffect(() => {
-    if (route.params?.refresh) {
-      loadNotes(selectedDate);
-    }
-    if (route.params?.calendarVisible !== undefined) {
-      setCalendarVisible(route.params.calendarVisible);
-    }
-  }, [route.params]);
+export default function HomeScreen({ navigation }) {
+  const { notes, deleteNote, editNote, selectedDate } = useAppContext();
 
   return (
     <View style={styles.container}>
-      <DateSelect navigation={navigation} route={route} />
-      <NoteList notes={notes} onNotePress={(note) => navigation.navigate('Note', { note })} />
+      <DateSelect/>
+      <NoteList
+         notes={notes}
+         onNotePress={(note) => navigation.navigate('Note', { note })}
+         onDeleteNote={deleteNote}
+         onEditNote={editNote}
+       />
       <TouchableOpacity 
         style={styles.addButton} 
         onPress={() => navigation.navigate('NewNote', { selectedDate })}

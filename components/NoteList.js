@@ -1,14 +1,14 @@
 // components/NoteList.js
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { useSelectedDate } from './SelectedDateContext'; // Import the context
+// import { useSelectedDate } from './SelectedDateContext'; // Import the context
+import { useAppContext } from './AppContext';
 
-function NoteList({ notes, onNotePress }) {
-  const { selectedDate } = useSelectedDate(); // Access the selectedDate
-
+function NoteList({ onNotePress }) {
+  const { selectedDate, notes } = useAppContext();
   // Filter notes to only include those created on the selected date
   const filteredNotes = notes.filter(note => {
-    return note.date === selectedDate.toISOString().split('T')[0];
+    return note.date === selectedDate;
   });
 
   return (
